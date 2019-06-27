@@ -1,35 +1,40 @@
 package com.example.firstapp.ui.main;
-import com.example.firstapp.R;
 
+import android.content.ContentResolver;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
+import android.provider.ContactsContract;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import androidx.annotation.Nullable;
-import androidx.annotation.NonNull;
+import android.widget.Toast;
+
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.firstapp.R;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import com.example.firstapp.R;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+
+import static android.content.ContentValues.TAG;
+import static java.sql.DriverManager.println;
 
 /**
  * A placeholder fragment containing a simple view.
  */
 public class OneFragment extends Fragment {
+        //implements LoaderManager.LoaderCallbacks<Cursor>, AdapterView.OnItemClickListener{
     String JSON_STRING = "{\"person\":[{\"name\":\"Jeesoo Yoon\",\"number\":010-1111-1111},{\"name\":\"Kim Dongha\",\"number\":010-2222-2222}]}";
     String name, number;
     TextView personName, personNumber;
@@ -44,6 +49,42 @@ public class OneFragment extends Fragment {
     private Intent mIntent;
     private LinearLayout mLinearLayout;
     private RecyclerAdapter adapter;
+    private List<String> Phone_number = new ArrayList<>();
+    private List<String> Phone_name = new ArrayList<>();
+
+
+    /*
+     * Defines an array that contains column names to move from
+     * the Cursor to the ListView.
+     */
+//    @SuppressLint("InlinedApi")
+//    private final static String[] FROM_COLUMNS = {
+//            Build.VERSION.SDK_INT
+//                    >= Build.VERSION_CODES.HONEYCOMB ?
+//                    ContactsContract.Contacts.DISPLAY_NAME_PRIMARY :
+//                    ContactsContract.Contacts.DISPLAY_NAME
+//    };
+//    /*
+//     * Defines an array that contains resource ids for the layout views
+//     * that get the Cursor column contents. The id is pre-defined in
+//     * the Android framework, so it is prefaced with "android.R.id"
+//     */
+//    private final static int[] TO_IDS = {
+//            android.R.id.text1
+//    };
+//    // Define global mutable variables
+//    // Define a ListView object
+//    ListView contactsList;
+//    // Define variables for the contact the user selects
+//    // The contact's _ID value
+//    long contactId;
+//    // The contact's LOOKUP_KEY
+//    String contactKey;
+//    // A content URI for the selected contact
+//    Uri contactUri;
+//    // An adapter that binds the result Cursor to the ListView
+//    private SimpleCursorAdapter cursorAdapter;
+
 
     public OneFragment() {
 // Required empty public constructor
@@ -71,7 +112,9 @@ public class OneFragment extends Fragment {
         personName = (TextView) view.findViewById(R.id.name);
         personNumber = (TextView) view.findViewById(R.id.number);
         recyclerView = (RecyclerView) view.findViewById(R.id.recyclerView);
-
+        //Phone_name.add("stop error");
+        //Phone_number.add("stop error");
+        if (Phone_name.size() > 0) personName.setText("Name: "+ Phone_name.get(0));
 
 
 
@@ -99,6 +142,11 @@ public class OneFragment extends Fragment {
             e.printStackTrace();
         }
 
+        ////Read Contacts from phone
+
+
+        JSONArray personarray = new JSONArray();
+
 
         RecyclerView recyclerView = view.findViewById(R.id.recyclerView);
 
@@ -108,10 +156,62 @@ public class OneFragment extends Fragment {
         adapter = new RecyclerAdapter();
         recyclerView.setAdapter(adapter);
 
-
+        gettingPhoneContacts();
+        Log.e("NAME: ", Phone_name.toString());
         getData();
 
+
         return view;
+    }
+
+    public void gettingPhoneContacts() {
+
+
+        ContentResolver cr = getActivity().getContentResolver();
+        // Read Contacts
+        Cursor c = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                            new String[] { ContactsContract.Contacts._ID, ContactsContract.Contacts.DISPLAY_NAME, ContactsContract.CommonDataKinds.Phone.NUMBER, ContactsContract.RawContacts.ACCOUNT_TYPE },
+                        ContactsContract.RawContacts.ACCOUNT_TYPE + " <> 'google' ",null, null);
+        if (c.getCount() <= 0) {
+            Toast.makeText(getActivity(), "No Phone Contact Found..!", Toast.LENGTH_SHORT).show();
+            //Phone_name.add("No Contact Found");
+            //Phone_number.add("No Contact Found");
+        }
+        else {
+            while (c.moveToNext()) {
+                Phone_number.add (c.getString(c.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))); //Phone number
+                Phone_name.add(c.getString(c.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME)));  //Name of contact
+                println("hi");
+            }
+
+        }
+        return;
+    }
+
+    public JSONArray cur2Json(Cursor cursor) {
+
+        JSONArray resultSet = new JSONArray();
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            int totalColumn = cursor.getColumnCount();
+            JSONObject rowObject = new JSONObject();
+            for (int i = 0; i < totalColumn; i++) {
+                if (cursor.getColumnName(i) != null) {
+                    try {
+                        rowObject.put(cursor.getColumnName(i),
+                                cursor.getString(i));
+                    } catch (Exception e) {
+                        Log.d(TAG, e.getMessage());
+                    }
+                }
+            }
+            resultSet.put(rowObject);
+            cursor.moveToNext();
+        }
+
+        cursor.close();
+        return resultSet;
+
     }
 
     private void getData() {
@@ -154,11 +254,13 @@ public class OneFragment extends Fragment {
 //                R.drawable.penguins,
 //                R.drawable.tulips
 //        );
-        for (int i = 0; i < nameList.size(); i++) {
+        for (int i = 0; i < Phone_name.size(); i++) {
             // 각 List의 값들을 data 객체에 set 해줍니다.
             Data data = new Data();
-            data.setTitle(nameList.get(i));
-            data.setContent(numberList.get(i));
+            //data.setTitle(nameList.get(i));
+            //data.setContent(numberList.get(i));
+            data.setTitle(Phone_name.get(i));
+            data.setContent(Phone_number.get(i));
             //data.setResId(listResId.get(i));
 
             // 각 값이 들어간 data를 adapter에 추가합니다.
