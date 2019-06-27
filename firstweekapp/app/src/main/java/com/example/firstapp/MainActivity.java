@@ -21,6 +21,8 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     private static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 100;
+    private static final int PICK_FROM_GALLERY = 1;
+
     private List<String> Phone_number = new ArrayList<>();
     private List<String> Phone_name = new ArrayList<>();
     @Override
@@ -61,8 +63,19 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
 
+
             // other 'case' lines to check for other
             // permissions this app might request.
+//            case PICK_FROM_GALLERY: {
+//                // If request is cancelled, the result arrays are empty.
+//                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//                    Intent galleryIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+//                    startActivityForResult(galleryIntent, PICK_FROM_GALLERY);
+//                } else {
+//                    //do something like displaying a message that he didn`t allow the app to access gallery and you wont be able to let him select from gallery
+//                }
+//                break;
+//             }
         }
     }
 
@@ -87,8 +100,7 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 // No explanation needed; request the permission
                 ActivityCompat.requestPermissions(MainActivity.this,
-                        new String[]{Manifest.permission.READ_CONTACTS},
-                        MY_PERMISSIONS_REQUEST_READ_CONTACTS);
+                        new String[]{Manifest.permission.READ_CONTACTS},MY_PERMISSIONS_REQUEST_READ_CONTACTS);
 
                 // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
                 // app-defined int constant. The callback method gets the
@@ -96,6 +108,21 @@ public class MainActivity extends AppCompatActivity {
             }
         } else {
             // Permission has already been granted
+        }
+
+
+        try {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, PICK_FROM_GALLERY);
+            } else {
+                ActivityCompat.requestPermissions(MainActivity.this,
+                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                        MY_PERMISSIONS_REQUEST_READ_CONTACTS);
+//                Intent galleryIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+//                startActivityForResult(galleryIntent, PICK_FROM_GALLERY);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(this, getSupportFragmentManager());
