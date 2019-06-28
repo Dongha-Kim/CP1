@@ -171,7 +171,7 @@ public class OneFragment extends Fragment {
         // Read Contacts
         Cursor c = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
                             new String[] { ContactsContract.Contacts._ID, ContactsContract.Contacts.DISPLAY_NAME, ContactsContract.CommonDataKinds.Phone.NUMBER, ContactsContract.RawContacts.ACCOUNT_TYPE },
-                        ContactsContract.RawContacts.ACCOUNT_TYPE + " <> 'google' ",null, null);
+                        ContactsContract.RawContacts.ACCOUNT_TYPE + " <> 'google' ",null,  ContactsContract.Contacts.DISPLAY_NAME+ " ASC");
         if (c.getCount() <= 0) {
             Toast.makeText(getActivity(), "No Phone Contact Found..!", Toast.LENGTH_SHORT).show();
             //Phone_name.add("No Contact Found");

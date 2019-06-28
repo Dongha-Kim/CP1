@@ -31,7 +31,7 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
         // Return a PlaceholderFragment (defined as a static inner class below).
         if (position == 0) return new OneFragment();
         else if (position == 1) return new TwoFragment();
-        else if (position == 2) return new ThreeFragment();
+        //else if (position == 2) return new ThreeFragment();
         else return PlaceholderFragment.newInstance(position + 1);
 
     }

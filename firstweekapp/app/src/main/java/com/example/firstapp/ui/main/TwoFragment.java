@@ -21,6 +21,7 @@ import com.bumptech.glide.Glide;
 import com.example.firstapp.R;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -263,6 +264,8 @@ public class TwoFragment extends Fragment {
 
                 listOfAllImages.add(absolutePathOfImage);
             }
+
+            Collections.reverse(listOfAllImages);
             return listOfAllImages;
         }
     }

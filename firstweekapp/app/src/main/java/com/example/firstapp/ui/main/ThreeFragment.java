@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
 
@@ -14,10 +13,6 @@ import com.example.firstapp.R;
  * A placeholder fragment containing a simple view.
  */
 public class ThreeFragment extends Fragment {
-    String JSON_STRING = "{\"employee\":{\"name\":\"Jeesoo Yoon\",\"Number\":010-1111-1111}}";
-    String name, number;
-    TextView personName, personNumber;
-
     public ThreeFragment() {
 // Required empty public constructor
     }
